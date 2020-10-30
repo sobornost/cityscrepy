@@ -1,0 +1,6 @@
+#includePath "~/Documents/;%USERPROFILE%Documents";
+#include "basiljs/bundle/basil.js";
+
+function draw() {
+	var data = b.CSV.decode(b.loadString("LA_Pools-Pools_per_Hood.csv"));
+}
