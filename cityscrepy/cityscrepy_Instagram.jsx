@@ -79,39 +79,54 @@ function draw() {
         return s.split(' ').filter(function(str){return str!="";}).length;
         //return s.split(' ').filter(String).length; - this can also be used
     }
+// coordinates setup      
+     function AngleToRadians(angle){
+            return (Math.PI / 180) * angle;
+            }
+     var x0 = b.width/2;
+     var y0 = b.height/2;
+
 // setting drawing parameters
     for (var i = 0; i < data.length; i++) {
-        var y = b.map(sumDigits(userid[i]),0,100,b.height-unitHeight,1);
+//~         var y = b.map(likes[i],0,maxLikes,0,b.height/2);
 //~         var y = b.map(userid[i],minUserId,maxUserId,b.height-unitHeight,1);
-        var x = b.map(newTime[i],0,86400,1,b.width-unitWidth);
+//~         var x = b.map(comments[i],0,maxComments,0, b.width/2);
         var xAngle = b.map(newTime[i],0,86400,0,360);
-        var likesSize = b.map(likes[i],0,maxLikes,unitHeight*0.5,unitHeight*10);
-        var commentsSize = b.map(comments[i],0,maxComments,likesSize+unitHeight*1,likesSize+unitHeight*2);
-        var emojisSize = b.map(countEmojis(caption[i]),1,10,unitHeight*0.5, b.width-unitWidth);
-        var wordsSize = b.map(countWords(caption[i]),1,100,unitHeight*0.5, b.width-unitWidth);
+        var dist = b.map(likes[i],0,maxLikes,unitHeight*0.5,unitHeight*10);
+        var commentsSize = b.map(comments[i],0,maxComments,0,20);
+//~         var emojisSize = b.map(countEmojis(caption[i]),1,10,unitHeight*0.5, b.width-unitWidth);
+//~         var wordsSize = b.map(countWords(caption[i]),1,100,unitHeight*0.5, b.width-unitWidth);
 //~       var ellipseTint = b.map(comments[i],0,maxComments,30,100);
-        var ellipseColorR = b.map(comments[i],0,maxComments,0,255);
-        var ellipseColorG = b.map(countEmojis(caption[i]),0,10,0,255);
-        var ellipseColorB = b.map(comments[i],maxComments,0,255,0);
-
+//~         var ellipseColorR = b.map(comments[i],0,maxComments,0,255);
+//~         var ellipseColorG = b.map(countEmojis(caption[i]),0,10,0,255);
+//~         var ellipseColorB = b.map(comments[i],maxComments,0,255,0);
+        
 // drawing fugures
 //squares
-        b.fill(0,0,255-Math.round(ellipseColorB));
-        var createdCaption = b.rect(b.width/2,b.height/2,emojisSize,wordsSize);
-        createdCaption.absoluteRotationAngle = 360-xAngle;
+//~         b.fill(0,0,255-Math.round(ellipseColorB));
+//~         var createdCaption = b.rect(b.width/2,b.height/2,emojisSize,wordsSize);
+//~         createdCaption.absoluteRotationAngle = 360-xAngle;
 
 // comments - outline
-        b.fill(255-Math.round(ellipseColorR),0,0);
+//~         b.fill(255-Math.round(ellipseColorR),0,0);
 //~         b.fillTint (ellipseTint);
-        b.ellipse (x,y,commentsSize,commentsSize);
+//~         b.ellipse (x,y,commentsSize,commentsSize);
 
 // likes - fill + width - caption, rotation - time
-        b.fill(0,Math.round(ellipseColorG),0);
+//~         b.fill(0,Math.round(ellipseColorG),0);
 //~         b.fillTint (ellipseTint);
-        var like = b.ellipse (x,y,likesSize,likesSize);
-        b.itemWidth(like, wordsSize);
-        like.absoluteRotationAngle = xAngle;
-        
+//~         var like = b.ellipse (x,y,likesSize,likesSize);
+//~         b.itemWidth(like, wordsSize);
+//~         like.absoluteRotationAngle = xAngle;
+// lines
+        var x1 = x0+dist*Math.cos(AngleToRadians(xAngle));
+        var y1 = y0+dist*Math.sin(AngleToRadians(xAngle));
+        b.stroke(0,0,0);
+        b.strokeWeight(commentsSize);
+        b.line (x0,y0,x1,y1);
+        x0=x1;
+        y0=y1;
+//~         
 //~         b.println(newTime[i]);
         b.println(countWords(caption[i]));
         }
