@@ -4,19 +4,20 @@
 function draw() {
     
     // setting defaults - units, color mode etc
-    const grid = 10;
-    const unit = 33;
-    const gridHeight = b.height/grid;
-    const gridWidth = b.width/grid;
-    const unitHeight = b.height/grid/unit;
-    const unitWidth = b.width/grid/unit;
-    const paddingBottom = 3;
-    
     b.units(b.MM);
     b.colorMode(b.CMYK);
+
+    const unit = 16;
+    const margin = 60;
+    const gridHeight = 150;
+    const gridWidth = (b.width - 2*margin)/4;
+    const unitHeight = gridHeight/unit;
+    const unitWidth = gridWidth/unit;
+    const paddingBottom = 20;
+    const scale = 1.6;
     
     // load instagram data
-    var data = b.CSV.decode(b.loadString("parks-and-recreation_1_letny.csv"));    
+    var data = b.CSV.decode(b.loadString("parki_16.csv"));    
     b.println("loaded "+data.length+" instagram photos");
     
     // setting variables
@@ -52,9 +53,27 @@ function draw() {
  // count hashtags in svg column
     function countHashtags(string)  {
         var matchResults = string.match(/(#[a-z0-9][a-z0-9\-_]*)/ig);
-        if (string && string.length) {return matchResults.length
-            } else { return 0
-            };
+        if (!string) {
+           return 0
+        } else if (!string.length){
+            return 0
+        } else if (matchResults==null){
+            return 0
+        } else {return matchResults.length
+        };
+     }
+ 
+  // count usernames
+    function countUsernames(string)  {
+        var matchResults = string.match(/(@[a-z0-9][a-z0-9\-_]*)/ig);
+        if (!string) {
+           return 0
+        } else if (!string.length){
+            return 0
+        } else if (matchResults==null){
+            return 0
+        } else {return matchResults.length
+        };
      }
  
  //function to count emojis in the instagram post caption. to show emojis, just omit .length 
@@ -70,6 +89,8 @@ function draw() {
         } else {return matchResults.length
         };
      }
+ 
+ 
    
   //count words by 
      function countWords(s){
@@ -96,7 +117,6 @@ function draw() {
                         caption[i] = data[i].description;
                         userid[i] = data[i].ownerId;
                         locationName = data[i].location;
-                        b.println(locationName);
                         };
                         
                          // defining range for likes etc
@@ -106,85 +126,103 @@ function draw() {
                         var minUserId = Math.min.apply(Math, userid.map(function(a) {return a;})); 
  
  
-                var l = 0; //steps control init
- 
- 
+
+  
+
 // drawing
-        for (var y = 0; y < 4; y++) {
-            for (var x = 0; x < 3; x++) {
-            
-                for (var i = 0; i < data.length; i++) {             
-                    
-                    if (i>1 && data[i].location == data[i-1].location && data[i].location) {
-                        
-                        // setting drawing parameters     
-                        //~         var y = b.map(likes[i],0,maxLikes,0,b.height/2);
-                        //~         var y = b.map(userid[i],minUserId,maxUserId,b.height-unitHeight,1);
-                        //~         var x = b.map(comments[i],0,maxComments,0, b.width/2);
-                        var xAngle = b.map(newTime[i],0,86400,0,360);
-                        var dist = b.map(likes[i],0,maxLikes,unitHeight*0.5,unitHeight*33);
-                        var commentsSize = b.map(comments[i],0,maxComments,0,20);
-                        //~         var emojisSize = b.map(countEmojis(caption[i]),1,10,unitHeight*0.5, b.width-unitWidth);
-                        //~         var wordsSize = b.map(countWords(caption[i]),1,100,unitHeight*0.5, b.width-unitWidth);
-                        //~         var ellipseTint = b.map(comments[i],0,maxComments,30,100);
-                        //~         var colorC = b.map(countHashtags(caption[i]),0,20,0,100);
-                        //~         var colorM = b.map(likes[i],0,maxLikes,0,100);
-                        //~         var colorY = b.map(countEmojis(caption[i]),0,10,0,100);
-                        //~         var colorK = b.map(countWords(caption[i]),0,440,0,100);
-                        
-                        // drawing
-                        //squares
-                        //~         b.fill(0,0,255-Math.round(ellipseColorB));
-                        //~         var createdCaption = b.rect(b.width/2,b.height/2,emojisSize,wordsSize);
-                        //~         createdCaption.absoluteRotationAngle = 360-xAngle;
+var l = 0; //steps control init         
+var i = 0;
+var y = 0;
 
-                        // comments - outline
-                        //~         b.fill(255-Math.round(ellipseColorR),0,0);
-                        //~         b.fillTint (ellipseTint);
-                        //~         b.ellipse (x,y,commentsSize,commentsSize);
+// draw bg
+b.fill(40,30,30,100);
+b.rect(0,0,b.width, b.height);
 
-                        // likes - fill + width - caption, rotation - time
-                        //~         b.fill(0,Math.round(ellipseColorG),0);
-                        //~         b.fillTint (ellipseTint);
-                        //~         var like = b.ellipse (x,y,likesSize,likesSize);
-                        //~         b.itemWidth(like, wordsSize);
-                        //~         like.absoluteRotationAngle = xAngle;
-        
-                        // lines
-                        var x1 = x0+dist*Math.cos(AngleToRadians(xAngle));
-                        var y1 = y0+dist*Math.sin(AngleToRadians(xAngle)); 
-                        
-                        b.strokeWeight(commentsSize);
-                        //~         b.stroke(colorC,colorM,colorY,colorK);
-                        b.line (x0,y0,x1,y1);
-                        x0=x1;
-                        y0=y1;
-                      
-                        }
-                    else {
-                        //write caption, move to next cell
-                         // location caption init and setup 
-                        var posX = x*gridWidth;
-                        var posY = y*(gridHeight+paddingBottom);
-                        
-                        b.textSize(6);
-                        b.textAlign(Justification.CENTER_ALIGN);
-                        b.text (data[i].location, posX,posY+gridHeight, gridWidth, 10);
-                        l++;
-                        
-                       
-                        var x0 = posX+gridWidth/2;
-                        var y0 = posY+gridHeight;
-                        
-                //~     locationURL = data[i].query;
-                    };
-                
-                // stop drawing if no more rows are available
-                if (l > 3) break; 
-                
-                };
-            };
-        };
-    }; 
+b.fill(0,0,0,0);
+b.textSize(50);
+b.textAlign(Justification.CENTER_ALIGN);
+b.text ("Парковый алфавит", b.width/2 - gridWidth*2, margin, gridWidth*4, 30);
+
+b.textSize(25);
+b.textAlign(Justification.CENTER_ALIGN);
+b.text ("на основе данных " + data.length + " фото из инстаграма с геолокацией",b.width/2 - gridWidth*2, margin+20, gridWidth*4, 15);
+
+
+
+while (y < 4) drawBlock: {
+    var x = 0; y++;
+    while (x < 4) {
+                                // stop drawing if no more rows are available
+                                l++;
+                                if (l > 16) break drawBlock;
+
+                                var posX = margin + x*gridWidth;
+                                var posY = margin + y*(gridHeight+paddingBottom);
+                                var x0 = posX + gridWidth/2;
+                                var y0 = posY;
+                                
+                                b.fill(0,0,0,0);
+                                b.textSize(25);
+                                b.textAlign(Justification.CENTER_ALIGN);
+                                b.text (data[i].location + "\n" + data[i].query, posX,posY, gridWidth, 30);
+                                b.println("Started draw");
+                                
+                                x++; 
+                                b.println(i);
+                                do {
+
+                                                    // setting drawing parameters     
+                                                    //~         var y = b.map(likes[i],0,maxLikes,0,b.height/2);
+                                                    //~         var y = b.map(userid[i],minUserId,maxUserId,b.height-unitHeight,1);
+                                                    //~         var x = b.map(comments[i],0,maxComments,0, b.width/2);
+                                                    var xAngle = b.map(newTime[i],0,86400,0,360);
+                                                    var dist = b.map(likes[i],0,maxLikes,unitWidth*0.2,unitWidth*20);
+                                                    var commentsSize = b.map(comments[i],0,maxComments,1,75);
+//~                                                     var emojisSize = b.map(countEmojis(caption[i]),1,20,unitHeight*0.5, b.width-unitWidth);
+//~                                                     var wordsSize = b.map(countWords(caption[i]),1,250,unitHeight*0.5, b.width-unitWidth);
+                                                    //~         var ellipseTint = b.map(comments[i],0,maxComments,30,100);
+                                                    var colorC = b.map(countHashtags(caption[i]),0,20,0,100);
+                                                    var colorM = b.map(countUsernames(caption[i]),0,5,0,100);
+                                                    var colorY = b.map(countEmojis(caption[i]),0,10,0,100);
+                                                    var colorK = b.map(countWords(caption[i]),0,400,0,75);
+                                                    
+                                                    // drawing
+                                                    //squares
+                                                    //~         b.fill(0,0,255-Math.round(ellipseColorB));
+                                                    //~         var createdCaption = b.rect(b.width/2,b.height/2,emojisSize,wordsSize);
+                                                    //~         createdCaption.absoluteRotationAngle = 360-xAngle;
+
+                                                    // comments - outline
+                                                    //~         b.fill(255-Math.round(ellipseColorR),0,0);
+                                                    //~         b.fillTint (ellipseTint);
+                                                    //~         b.ellipse (x,y,commentsSize,commentsSize);
+
+                                                    // likes - fill + width - caption, rotation - time
+                                                    //~         b.fill(0,Math.round(ellipseColorG),0);
+                                                    //~         b.fillTint (ellipseTint);
+                                                    //~         var like = b.ellipse (x,y,likesSize,likesSize);
+                                                    //~         b.itemWidth(like, wordsSize);
+                                                    //~         like.absoluteRotationAngle = xAngle;
+                                    
+                                                    // lines
+                                                    var x1 = x0+dist*scale*Math.cos(AngleToRadians(xAngle));
+                                                    var y1 = y0+dist*scale*Math.sin(AngleToRadians(xAngle)); 
+                                                    
+                                                    b.strokeWeight(commentsSize);
+                                                    b.fill(0,0,0,0);
+                                                    b.stroke(colorC,colorM,colorY,colorK);
+                                                    b.line (x0,y0,x1,y1);
+                                                    x0=x1;
+                                                    y0=y1;
+                                                    
+                                                    i++;
+
+                                                  }
+                                        while (i>0 && data[i].location === data[i-1].location && data[i].location && i < data.length-1);
+
+                                        }; 
+                                    };
+
+ }; 
 //~  
-b.go(/*b.MODESILENT*/);
+b.go(b.MODESILENT);
